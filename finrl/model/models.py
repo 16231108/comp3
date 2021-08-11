@@ -219,7 +219,7 @@ class DRLAgent:
                 f"{config.TRAINED_MODEL_DIR}/{tb_log_name.upper()}_{total_timesteps // 1000}k_{total_timesteps}{lxcName}")
             return model
         #print(model.__class__)
-        model.save(f"{config.TRAINED_MODEL_DIR}/{tb_log_name.upper()}_{total_timesteps // 1000}k_{total_timesteps}lxc2")
+        #model.save(f"{config.TRAINED_MODEL_DIR}/{tb_log_name.upper()}_{total_timesteps // 1000}k_{total_timesteps}lxc2")
         lxcModel = model.load(f"{config.TRAINED_MODEL_DIR}/{tb_log_name.upper()}_{total_timesteps // 1000}k_{total_timesteps}{lxcName}")
         return lxcModel
 
