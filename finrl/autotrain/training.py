@@ -23,17 +23,17 @@ def train_one():
     train an agent
     """
     print("==============Start Fetching Data===========")
-    '''
+    
     df = YahooDownloader(
         start_date=config.START_DATE,
         end_date=config.END_DATE,
         ticker_list=config.DOW_30_TICKER,
     ).fetch_data()
-    '''
+    
     #names=["date","open","high","low","close","volume","tic","day",]
     #df = pd.read_csv("./" + config.DATA_SAVE_DIR + "/" + "20210315-07h382" + ".csv",index_col=0)
     print('GPU is :',torch.cuda.is_available())
-    df = pd.read_csv("./" + config.DATA_SAVE_DIR + "/" + "20210315-08h17" + ".csv", index_col=0)
+    #df = pd.read_csv("./" + config.DATA_SAVE_DIR + "/" + "20210315-08h17" + ".csv", index_col=0)
     #print(df)
     print("==============Start Feature Engineering===========")
     fe = FeatureEngineer(
@@ -90,7 +90,7 @@ def train_one():
     print("start training a2c model")
     model_a2c = agent.get_model("a2c")
     trained_a2c = agent.train_lxc_model(
-        model=model_a2c, tb_log_name="a2c", total_timesteps=80000,lxcType=1,lxcName="lxc2"
+        model=model_a2c, tb_log_name="a2c", total_timesteps=8000,lxcType=1,lxcName="lxc2"
     )
     #print('trained_a2c is:', trained_a2c)
     all_model.append(trained_a2c)
@@ -102,7 +102,7 @@ def train_one():
     print("start training sac model")
     model_sac = agent.get_model("sac")
     trained_sac = agent.train_lxc_model(
-        model=model_sac, tb_log_name="sac", total_timesteps=180000, lxcType=1, lxcName="lxc1"
+        model=model_sac, tb_log_name="sac", total_timesteps=8000, lxcType=1, lxcName="lxc1"
     )    
     #print('trained_sac is:', trained_sac)
     all_model.append(trained_sac)
