@@ -21,8 +21,8 @@ def build_parser():
 
 
 def main():
-    parser = build_parser()
-    options = parser.parse_args()
+    #parser = build_parser()
+    options_mode ='train' #parser.parse_args()
     if not os.path.exists("./" + config.DATA_SAVE_DIR):
         os.makedirs("./" + config.DATA_SAVE_DIR)
     if not os.path.exists("./" + config.TRAINED_MODEL_DIR):
@@ -32,7 +32,7 @@ def main():
     if not os.path.exists("./" + config.RESULTS_DIR):
         os.makedirs("./" + config.RESULTS_DIR)
 
-    if options.mode == "train":
+    if options_mode == "train":
         if(sys.argv[1]=='fetch'):
             import finrl.autotrain.fetch
             finrl.autotrain.fetch.train_one()
@@ -46,7 +46,7 @@ def main():
 
         # finrl.autotrain.training.train_one()
 
-    elif options.mode == "download_data":
+    elif options_mode == "download_data":
         from finrl.marketdata.yahoodownloader import YahooDownloader
         print('开始下载数据……')
         df = YahooDownloader(start_date=config.START_DATE,
