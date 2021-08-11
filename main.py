@@ -4,7 +4,7 @@ import os
 import time
 from argparse import ArgumentParser
 import datetime
-
+import sys
 from finrl.config import config
 
 
@@ -33,9 +33,18 @@ def main():
         os.makedirs("./" + config.RESULTS_DIR)
 
     if options.mode == "train":
-        import finrl.autotrain.training
+        if(sys.argv[1]=='fetch'):
+            import finrl.autotrain.fetch
+            finrl.autotrain.fetch.train_one()
+        elif(sys.argv[1]=='feature'):
+            import finrl.autotrain.feature
+            finrl.autotrain.feature.train_one(sys.argv[2])
+        elif(sys.argv[1]=='train_model'):
+            import finrl.autotrain.train_model
+            finrl.autotrain.train_model.train_one(sys.argv[2],sys.argv[3])
+        # import finrl.autotrain.training
 
-        finrl.autotrain.training.train_one()
+        # finrl.autotrain.training.train_one()
 
     elif options.mode == "download_data":
         from finrl.marketdata.yahoodownloader import YahooDownloader
