@@ -117,11 +117,11 @@ def train_one():
 
     ###################################################################lxca2c
 
-    print("start training lxcA2C model")
+    '''print("start training lxcA2C model")
     model_lxcA2C = lxc_agent.get_model("lxcA2C")
     trained_lxcA2C = lxc_agent.train_lxc_model(
         model=model_lxcA2C, tb_log_name="lxcA2C", total_timesteps=8000, lxcType=None, lxcName="lxc2"
-    )
+    )'''
     #all_model.append(trained_lxcA2C)
     
 
