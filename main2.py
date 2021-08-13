@@ -22,7 +22,7 @@ def build_parser():
 
 def main():
     parser = build_parser()
-    options.mode =parser.parse_args()
+    options =parser.parse_args()
     if not os.path.exists("./" + config.DATA_SAVE_DIR):
         os.makedirs("./" + config.DATA_SAVE_DIR)
     if not os.path.exists("./" + config.TRAINED_MODEL_DIR):
