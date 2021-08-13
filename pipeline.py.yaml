@@ -1,0 +1,74 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: finrl-library-2-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.6.6, pipelines.kubeflow.org/pipeline_compilation_time: '2021-08-12T13:02:28.480108',
+    pipelines.kubeflow.org/pipeline_spec: '{"name": "FinRL-Library-2"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.6.6}
+spec:
+  entrypoint: finrl-library-2
+  templates:
+  - name: feature-engineering
+    container:
+      args: [main.py, feature, /tmp/inputs/input-0/data]
+      command: [python]
+      image: star16231108/baseline:1.0
+    inputs:
+      artifacts:
+      - {name: fetch-data-out, path: /tmp/inputs/input-0/data}
+    outputs:
+      artifacts:
+      - {name: feature-engineering-trade_out, path: /result_trade}
+      - {name: feature-engineering-train_out, path: /result_train}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.6.6
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: fetch-data
+    container:
+      args: [main.py, fetch]
+      command: [python]
+      image: star16231108/baseline:1.0
+    outputs:
+      artifacts:
+      - {name: fetch-data-out, path: /result}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.6.6
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: finrl-library-2
+    dag:
+      tasks:
+      - name: feature-engineering
+        template: feature-engineering
+        dependencies: [fetch-data]
+        arguments:
+          artifacts:
+          - {name: fetch-data-out, from: '{{tasks.fetch-data.outputs.artifacts.fetch-data-out}}'}
+      - {name: fetch-data, template: fetch-data}
+      - name: train-model
+        template: train-model
+        dependencies: [feature-engineering]
+        arguments:
+          artifacts:
+          - {name: feature-engineering-trade_out, from: '{{tasks.feature-engineering.outputs.artifacts.feature-engineering-trade_out}}'}
+          - {name: feature-engineering-train_out, from: '{{tasks.feature-engineering.outputs.artifacts.feature-engineering-train_out}}'}
+  - name: train-model
+    container:
+      args: [main.py, train_model, /tmp/inputs/input-0/data, /tmp/inputs/input-1/data]
+      command: [python]
+      image: star16231108/baseline:1.0
+    inputs:
+      artifacts:
+      - {name: feature-engineering-train_out, path: /tmp/inputs/input-0/data}
+      - {name: feature-engineering-trade_out, path: /tmp/inputs/input-1/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.6.6
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner
