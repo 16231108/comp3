@@ -5,15 +5,15 @@ from gym import spaces
 from torch.nn import functional as F
 
 from stable_baselines3.common import logger
-from stable_baselines3.common.on_policy_algorithm import OnPolicyAlgorithm
-from stable_baselines3.common.policies import ActorCriticPolicy
+from .multi_On_policy_algorithm import OnPolicyAlgorithm
+from stable_baselines3.common.utils import safe_mean
+from .multi_policies import ActorCriticPolicy
 from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, Schedule
 from stable_baselines3.common.utils import explained_variance
 import time
-from stable_baselines3.common.utils import safe_mean
 
 
-class lxcA2C(OnPolicyAlgorithm):
+class A2C(OnPolicyAlgorithm):
     """
     Advantage Actor Critic (A2C)
 
@@ -58,6 +58,8 @@ class lxcA2C(OnPolicyAlgorithm):
         self,
         policy: Union[str, Type[ActorCriticPolicy]],
         env: Union[GymEnv, str],
+        lxc_stock_number: int,
+        all_stock_number:int,
         learning_rate: Union[float, Schedule] = 7e-4,
         n_steps: int = 5,
         gamma: float = 0.99,
@@ -79,9 +81,11 @@ class lxcA2C(OnPolicyAlgorithm):
         _init_setup_model: bool = True,
     ):
 
-        super(lxcA2C, self).__init__(
+        super(A2C, self).__init__(
             policy,
             env,
+            lxc_stock_number=lxc_stock_number,
+            all_stock_number=all_stock_number,
             learning_rate=learning_rate,
             n_steps=n_steps,
             gamma=gamma,
@@ -124,23 +128,22 @@ class lxcA2C(OnPolicyAlgorithm):
         """
         # Update optimizer learning rate
         self._update_learning_rate(self.policy.optimizer)
+
         # This will only loop once (get all data in one go)
-        #print('rollout_buffer is:',self.rollout_buffer)
         for rollout_data in self.rollout_buffer.get(batch_size=None):
+
             actions = rollout_data.actions
-            #print('lxc Actions is :',actions) #这里的就是动作
             if isinstance(self.action_space, spaces.Discrete):
                 # Convert discrete action from float to long
                 actions = actions.long().flatten()
 
             # TODO: avoid second computation of everything because of the gradient
+            #print("rollout_data.observations is:  ",rollout_data.observations)
             values, log_prob, entropy = self.policy.evaluate_actions(rollout_data.observations, actions)
-            #print('lxc values is :', values)
             values = values.flatten()
 
             # Normalize advantage (not present in the original implementation)
             advantages = rollout_data.advantages
-            #print('lxc advantages is :', advantages)
             if self.normalize_advantage:
                 advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
 
@@ -165,7 +168,6 @@ class lxcA2C(OnPolicyAlgorithm):
 
             # Clip grad norm
             th.nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
-            #print('lxc123')
             self.policy.optimizer.step()
 
         explained_var = explained_variance(self.rollout_buffer.values.flatten(), self.rollout_buffer.returns.flatten())
@@ -178,55 +180,36 @@ class lxcA2C(OnPolicyAlgorithm):
         logger.record("train/value_loss", value_loss.item())
         if hasattr(self.policy, "log_std"):
             logger.record("train/std", th.exp(self.policy.log_std).mean().item())
-    '''
-    def learn(
-        self,
-        total_timesteps: int,
-        callback: MaybeCallback = None,
-        log_interval: int = 100,
-        eval_env: Optional[GymEnv] = None,
-        eval_freq: int = -1,
-        n_eval_episodes: int = 5,
-        tb_log_name: str = "A2C",
-        eval_log_path: Optional[str] = None,
-        reset_num_timesteps: bool = True,
-    ) -> "A2C":
 
-        return super(lxcA2C, self).learn(
-            total_timesteps=total_timesteps,
-            callback=callback,
-            log_interval=log_interval,
-            eval_env=eval_env,
-            eval_freq=eval_freq,
-            n_eval_episodes=n_eval_episodes,
-            tb_log_name=tb_log_name,
-            eval_log_path=eval_log_path,
-            reset_num_timesteps=reset_num_timesteps,
-        )
-        '''
-    def learn(
-        self,
-        total_timesteps: int,
-        callback: MaybeCallback = None,
-        log_interval: int = 100,
-        eval_env: Optional[GymEnv] = None,
-        eval_freq: int = -1,
-        n_eval_episodes: int = 5,
-        tb_log_name: str = "lxcA2C",
-        eval_log_path: Optional[str] = None,
-        reset_num_timesteps: bool = True,
 
-    ) -> "lxcA2C":
+    def online_learning(self,total_timesteps: int,
+                        callback: MaybeCallback = None,
+                        log_interval: int = 100,
+                        eval_env: Optional[GymEnv] = None,
+                        eval_freq: int = -1,
+                        n_eval_episodes: int = 5,
+                        tb_log_name: str = "A2C",
+                        eval_log_path: Optional[str] = None,
+                        reset_num_timesteps: bool = True,
+                        ):
         iteration = 0
 
+        '''
         total_timesteps, callback = self._setup_learn(
-            total_timesteps, eval_env, callback, eval_freq, n_eval_episodes, eval_log_path, reset_num_timesteps, tb_log_name
+            total_timesteps, eval_env, callback, eval_freq, n_eval_episodes, eval_log_path, reset_num_timesteps,
+            tb_log_name
         )
+        '''
+        callback = self._get_callback(callback, eval_env, eval_freq, n_eval_episodes, eval_log_path)
         callback.on_training_start(locals(), globals())
-
+        callback.model = self
+        #print("callback.model is:",callback.model)
+        self.num_timesteps = 0
+        #print("self.env is:",self.env)
         while self.num_timesteps < total_timesteps:
 
-            continue_training = self.collect_rollouts(self.env, callback, self.rollout_buffer, n_rollout_steps=self.n_steps)
+            continue_training = self.collect_rollouts(self.env, callback, self.rollout_buffer,
+                                                      n_rollout_steps=self.n_steps)
 
             if continue_training is False:
                 break
@@ -249,5 +232,28 @@ class lxcA2C(OnPolicyAlgorithm):
             self.train()
 
         callback.on_training_end()
-
         return self
+    def learn(
+        self,
+        total_timesteps: int,
+        callback: MaybeCallback = None,
+        log_interval: int = 100,
+        eval_env: Optional[GymEnv] = None,
+        eval_freq: int = -1,
+        n_eval_episodes: int = 5,
+        tb_log_name: str = "A2C",
+        eval_log_path: Optional[str] = None,
+        reset_num_timesteps: bool = True,
+    ) -> "A2C":
+
+        return super(A2C, self).learn(
+            total_timesteps=total_timesteps,
+            callback=callback,
+            log_interval=log_interval,
+            eval_env=eval_env,
+            eval_freq=eval_freq,
+            n_eval_episodes=n_eval_episodes,
+            tb_log_name=tb_log_name,
+            eval_log_path=eval_log_path,
+            reset_num_timesteps=reset_num_timesteps,
+        )
