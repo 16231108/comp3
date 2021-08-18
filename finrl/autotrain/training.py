@@ -124,9 +124,8 @@ def train_one():
     )'''
     #all_model.append(trained_lxcA2C)
     
-    import pickle
     with open('x.pkl','wb') as f:
-        pickle.dump(trained_sac,f,1)
+        pickle.dump(trained_sac,f,2)
     with open('x.pkl','rb') as f:
         trained_sac=pickle.load(f)
     #########################################################################
