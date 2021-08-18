@@ -262,10 +262,10 @@ class StockTradingEnv(gym.Env):
                 #print('self.turbulence_threshold is:',self.turbulence_threshold)
                 lxcTemp = self.data['turbulence']
                 #print('lxcTemp',lxcTemp)
-                if(len(lxcTemp)>1):
-                    self.turbulence = self.data['turbulence'].values[0]
-                else:
-                    self.turbulence = self.data['turbulence']
+                # if(len(lxcTemp)>1):
+                #     self.turbulence = self.data['turbulence'].values[0]
+                # else:
+                self.turbulence = self.data['turbulence']
             self.state =  self._update_state()
                            
             end_total_asset = self.state[0]+ \
