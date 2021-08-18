@@ -124,7 +124,11 @@ def train_one():
     )'''
     #all_model.append(trained_lxcA2C)
     
-
+    import pickle
+    with open('x.pkl','wb') as f:
+        pickle.dump(trained_sac,f,1)
+    with open('x.pkl','rb') as f:
+        trained_sac=pickle.load(f)
     #########################################################################
     print("==============Start Trading===========")
     '''
@@ -136,7 +140,10 @@ def train_one():
         #model=all_model, environment=e_trade_gym
         model=trained_sac, environment=e_trade_gym
     )
-
+    df_account_value, df_actions = DRLAgent.DRL_prediction(
+        #model=all_model, environment=e_trade_gym
+        #model=trained_sac, environment=e_trade_gym
+    )
     df_account_value.to_csv(
         "./" + config.RESULTS_DIR + "/df_account_value_" + now + ".csv"
     )
