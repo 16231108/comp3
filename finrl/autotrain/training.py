@@ -132,7 +132,7 @@ def train_one():
         model=trained_sac, test_data=trade, test_env=env_trade, test_obs=obs_trade
     )
     '''
-    df_account_value, df_actions = DRLAgent.DRL_prediction(
+    df_account_value, df_actions = DRLAgent.Multi_DRL_prediction(
         #model=all_model, environment=e_trade_gym
         model=all_model, environment=e_trade_gym
     )
