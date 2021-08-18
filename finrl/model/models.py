@@ -3,11 +3,14 @@ import pandas as pd
 import numpy as np
 import time
 import gym
+import os
 
 # RL models from stable-baselines
 # from stable_baselines import SAC
 # from stable_baselines import TD3
-
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 from stable_baselines3.ppo import MlpPolicy
 from stable_baselines3.common.vec_env import DummyVecEnv
 
@@ -23,6 +26,8 @@ from finrl.env.env_stocktrading import StockTradingEnv
 
 from stable_baselines3 import A2C
 from finrl.lxcalgorithms.lxcA2C import lxcA2C
+from finrl.lxcalgorithms.lxcSAC import lxcSAC
+from finrl.lxcalgorithms.lxcDDPG import lxcDDPG
 from stable_baselines3 import PPO
 from stable_baselines3 import TD3
 import random
@@ -35,7 +40,7 @@ from stable_baselines3.common.noise import (
 from stable_baselines3 import SAC
 
 
-MODELS = {"a2c": A2C, "ddpg": DDPG, "td3": TD3, "sac": SAC, "ppo": PPO,"lxcA2C": lxcA2C}
+MODELS = {"a2c": A2C, "ddpg": DDPG, "td3": TD3, "sac": SAC, "ppo": PPO,"lxcA2C": lxcA2C,"lxcSAC": lxcSAC,"lxcDDPG": lxcDDPG,}
 
 MODEL_KWARGS = {x: config.__dict__[f"{x.upper()}_PARAMS"] for x in MODELS.keys()}
 
@@ -88,11 +93,29 @@ class DRLAgent:
                 break
         return account_memory[0], actions_memory[0]
     '''
+
+    def writeFile(filename, data):
+        file = os.open(filename, 'wb')
+        file.write(data)
+        file.close()
+        print
+        'File had been writed Succed!'
+
     @staticmethod
     def DRL_prediction(model, environment):
+        def readFile(filename):
+            with open(str(filename), 'r') as f:
+                data = f.readlines()
+            return data
+        def writeFile(filename, data):
+            with open(filename, 'w') as f:
+                for oneData in data:
+                    f.write(str(oneData)+'\n')
+            print('File had been writed Succed!')
         def lxcBagging(data):
+            #print(data)
             temp_data =[]
-            rate = [0.250,0.500,0.250]
+            rate = [0.25,0.50,0.25]
             #rate = [1, 1, 1]
             for i in range(len(data)):
                 if (len(temp_data) < 1):
@@ -114,8 +137,8 @@ class DRLAgent:
             #temp_data = temp_data/len(data)
             return np.array(temp_data)
         def lxcRandomBaggingSec(data,pro):
-            #print(data)
-            if(pro[0][0]>46 and pro[0][0]<51):
+            print(pro)
+            if(pro[0][0]>46 and pro[0][0]<56):
                 return np.array(data[0][0])
             else:
                 if(pro[1][0]>30):
@@ -140,28 +163,41 @@ class DRLAgent:
                     else:
                         temp.append(data[0][0][0][i])
             return np.array([temp])
-
+        def lxcRLRL(data):
+            temp_data = []
+            if (data[3][0] >= 0.5):
+                temp_data = data[0][0]
+                print('A2C models',data[3][0])
+            elif data[3][0] >=-0.5:
+                temp_data = data[1][0]
+                print('SAC models', data[3][0])
+            else:
+                temp_data = data[2][0]
+                print('DDPG models', data[3][0])
+            # temp_data = temp_data/len(data)
+            return np.array(temp_data)
         test_env, test_obs = environment.get_sb_env()
         """make a prediction"""
         account_memory = []
         actions_memory = []
         test_env.reset()
+        print('len(environment.df.index.unique()) is:',len(environment.df.index.unique()))
+        print()
         for i in range(len(environment.df.index.unique())):
             lxc_action = []
             lxc_pro=[]
-
+            '''
             for oneModel in model:
-                temp1,temp2,pro = oneModel.predict(test_obs)
-                temp1=[temp1,temp2]
-                #print('temp1 is:',temp1)
-                lxc_pro.append(np.abs(pro))
-                #temp2 = oneModel.action_log_prob(temp1)
-                lxc_action.append(temp1)
-
+                action, _states, pro = oneModel.predict(test_obs)
+                lxc_pro.append(abs(pro))
+                lxc_action.append((action,_states))
+                #action,_ = oneModel.predict(test_obs)
+                #print(action)
+            '''
             #action, _states,pro = model.predict(test_obs)
-            print('pro is:',lxc_pro)
+            #print('pro is:',lxc_pro)
+            action, _ = model.predict(test_obs)
             #action = lxcRandomBaggingSec(lxc_action,lxc_pro)
-            action = lxcBagging(lxc_action)
             # account_memory = test_env.env_method(method_name="save_asset_memory")
             # actions_memory = test_env.env_method(method_name="save_action_memory")
             test_obs, rewards, dones, info = test_env.step(action)
@@ -215,8 +251,7 @@ class DRLAgent:
     def train_lxc_model(self, model, tb_log_name, total_timesteps=5000,lxcType=None,lxcName = None):
         if lxcType is None:
             model = model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name)
-            model.save(
-                f"{config.TRAINED_MODEL_DIR}/{tb_log_name.upper()}_{total_timesteps // 1000}k_{total_timesteps}{lxcName}")
+            #model.save(                f"{config.TRAINED_MODEL_DIR}/{tb_log_name.upper()}_{total_timesteps // 1000}k_{total_timesteps}{lxcName}")
             return model
         #print(model.__class__)
         #model.save(f"{config.TRAINED_MODEL_DIR}/{tb_log_name.upper()}_{total_timesteps // 1000}k_{total_timesteps}lxc2")
@@ -460,7 +495,7 @@ class DRLEnsembleAgent:
 
             print("======PPO Training========")
             model_ppo = self.get_model("ppo",self.train_env,policy="MlpPolicy",model_kwargs=PPO_model_kwargs)
-            model_ppo = self.train_model(model_ppo, "ppo", tb_log_name="ppo_{}".format(i), iter_num = i, total_timesteps=timesteps_dict['ppo']) #100_000
+            model_ppo = self.train_model(model_ppo, "ppo", tb_log_name="ppo{}".format(i), iter_num = i, total_timesteps=timesteps_dict['ppo']) #100_000
             print("======PPO Validation from: ", validation_start_date, "to ",validation_end_date)
             val_env_ppo = DummyVecEnv([lambda: StockTradingEnv(validation,
                                                                 self.stock_dim,
