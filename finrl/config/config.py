@@ -38,11 +38,13 @@ RESULTS_DIR = "results"
 
 #lxc
 #START_DATE = "2010-01-01"
-START_DATE = "2019-01-01"
-END_DATE = "2021-01-01"
+START_DATE = "2020-11-15"
+#END_DATE = "2021-01-01"
+END_DATE = "2021-04-12"
+
 
 #START_TRADE_DATE = "2020-10-01"
-START_TRADE_DATE = "2020-10-01"
+START_TRADE_DATE = "2021-02-08"
 
 ## dataset default columns
 DEFAULT_DATA_COLUMNS = ["date", "tic", "close"]
@@ -50,7 +52,7 @@ DEFAULT_DATA_COLUMNS = ["date", "tic", "close"]
 ## stockstats technical indicator column names
 ## check https://pypi.org/project/stockstats/ for different names
 TECHNICAL_INDICATORS_LIST = ["macd","boll_ub","boll_lb","rsi_30", "cci_30", "dx_30","close_30_sma","close_60_sma"]
-
+#TECHNICAL_INDICATORS_LIST = ["macd"]
 
 ## Model Parameters
 A2C_PARAMS = {"n_steps": 5, "ent_coef": 0.01, "learning_rate": 0.0007}
@@ -62,8 +64,18 @@ PPO_PARAMS = {
     "batch_size": 64,
 }
 DDPG_PARAMS = {"batch_size": 128, "buffer_size": 50000, "learning_rate": 0.001}
+LXCDDPG_PARAMS = {"batch_size": 128, "buffer_size": 50000, "learning_rate": 0.001}
 TD3_PARAMS = {"batch_size": 100, "buffer_size": 1000000, "learning_rate": 0.001}
 SAC_PARAMS = {
+    "batch_size": 64,
+    "buffer_size": 100000,
+    "learning_rate": 0.0001,
+    "learning_starts": 100,
+    "batch_size": 64,
+    "ent_coef": "auto_0.1",
+}
+
+LXCSAC_PARAMS = {
     "batch_size": 64,
     "buffer_size": 100000,
     "learning_rate": 0.0001,
@@ -141,6 +153,17 @@ DOW_30_TICKER = [
     "DD",
 ]
 '''
+DOW_30_TICKER = [
+    "AAPL",
+    # "601878",  # 平安银行
+    # "102740",  # 平安银行
+    # "600072",  # 平安银行
+    # "600685",  # 平安银行
+    # #"600519",
+    # #"603555"
+    # "102813",  # 平安银行
+
+]
 ''' 
 DOW_30_TICKER = [
     "000001.SZ",#平安银行
@@ -179,40 +202,40 @@ DOW_30_TICKER = [
     #"DD"
 ]
 '''
-
+'''
 DOW_30_TICKER = [
     "AAPL",
-    # "MSFT",
-    # "JPM",
-    # "V",
-    # "RTX",
-    # "PG",
-    # "GS",
-    # "NKE",
-    # "DIS",
-    # "AXP",
-    # "HD",
-    # "INTC",
-    # "WMT",
-    # "IBM",
-    # "MRK",
-    # "UNH",
-    # "KO",
-    # "CAT",
-    # "TRV",
-    # "JNJ",
-    # "CVX",
-    # "MCD",
-    # "VZ",
-    # "CSCO",
-    # "XOM",
-    # "BA",
-    # "MMM",
-    # "PFE",
-    # "WBA",
-    # "DD",
+    "MSFT",
+    "JPM",
+    "V",
+    "RTX",
+    "PG",
+    "GS",
+    "NKE",
+    "DIS",
+    "AXP",
+    "HD",
+    "INTC",
+    "WMT",
+    "IBM",
+    "MRK",
+    "UNH",
+    "KO",
+    "CAT",
+    "TRV",
+    "JNJ",
+    "CVX",
+    "MCD",
+    "VZ",
+    "CSCO",
+    "XOM",
+    "BA",
+    "MMM",
+    "PFE",
+    "WBA",
+    "DD",
 ]
-
+'''
 # Nasdaq 100 constituents at 2019/01
 NAS_100_TICKER = [
     "AMGN",
