@@ -14,7 +14,7 @@ from finrl.preprocessing.preprocessors import FeatureEngineer
 from finrl.preprocessing.data import data_split
 from finrl.env.env_stocktrading import StockTradingEnv
 from finrl.env.lxc_env_stocktrading import lxcStockTradingEnv
-from finrl.model.models import DRLAgent
+from finrl.model.multi_models import DRLAgent
 from finrl.trade.backtest import backtest_stats as BackTestStats
 from stable_baselines3 import A2C
 
@@ -90,7 +90,7 @@ def train_one():
     print("start training a2c model")
     model_a2c = agent.get_model("a2c")
     trained_a2c = agent.train_lxc_model(
-        model=model_a2c, tb_log_name="a2c", total_timesteps=4000,lxcType=None,lxcName="lxc2"
+        model=model_a2c, tb_log_name="a2c", total_timesteps=1000,lxcType=None,lxcName="lxc2"
     )
     #print('trained_a2c is:', trained_a2c)
     all_model.append(trained_a2c)
@@ -102,7 +102,7 @@ def train_one():
     print("start training sac model")
     model_sac = agent.get_model("sac")
     trained_sac = agent.train_lxc_model(
-        model=model_sac, tb_log_name="sac", total_timesteps=4000, lxcType=None, lxcName="lxc1"
+        model=model_sac, tb_log_name="sac", total_timesteps=1000, lxcType=None, lxcName="lxc1"
     )    
     #print('trained_sac is:', trained_sac)
     all_model.append(trained_sac)
@@ -110,7 +110,7 @@ def train_one():
 
     model_ddpg = agent.get_model("ddpg")
     trained_ddpg = agent.train_lxc_model(
-        model=model_ddpg, tb_log_name="ddpg", total_timesteps=4000,lxcType=None,lxcName="lxc1"
+        model=model_ddpg, tb_log_name="ddpg", total_timesteps=1000,lxcType=None,lxcName="lxc1"
     )
     #print('trained_ddpg is:',trained_ddpg)
     all_model.append(trained_ddpg)
