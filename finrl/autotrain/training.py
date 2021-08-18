@@ -93,7 +93,7 @@ def train_one():
     #     model=model_a2c, tb_log_name="a2c", total_timesteps=1000,lxcType=None,lxcName="lxc2"
     # )
     #print('trained_a2c is:', trained_a2c)
-    all_model.append(trained_a2c)
+    #all_model.append(trained_a2c)
 
 
     ####################################################################sac
@@ -113,7 +113,7 @@ def train_one():
     #     model=model_ddpg, tb_log_name="ddpg", total_timesteps=1000,lxcType=None,lxcName="lxc1"
     # )
     #print('trained_ddpg is:',trained_ddpg)
-    all_model.append(trained_ddpg)
+    #all_model.append(trained_ddpg)
 
     ###################################################################lxca2c
 
