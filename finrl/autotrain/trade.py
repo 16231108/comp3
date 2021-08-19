@@ -23,7 +23,9 @@ def train_one(m_path,t_path):
     f=open(m_path,'rb')
     trained_sac=pickle.load(f)
     f.close()
-    trade = pd.read_csv(t_path)
+    f=open(t_path,'rb')
+    e_trade_gym=pickle.load(f)
+    f.close()
     #########################################################################
     print("==============Start Trading===========")
     '''
@@ -31,18 +33,6 @@ def train_one(m_path,t_path):
         model=trained_sac, test_data=trade, test_env=env_trade, test_obs=obs_trade
     )
     '''
-    env_kwargs = {
-        "hmax": 100, 
-        "initial_amount": 1000000, 
-        "buy_cost_pct": 0.001, 
-        "sell_cost_pct": 0.001, 
-        "state_space": state_space, 
-        "stock_dim": stock_dimension, 
-        "tech_indicator_list": config.TECHNICAL_INDICATORS_LIST, 
-        "action_space": stock_dimension, 
-        "reward_scaling": 1e-4
-        }
-    e_trade_gym = StockTradingEnv(df=trade, turbulence_threshold=250.0, **env_kwargs)
     df_account_value, df_actions = DRLAgent.DRL_prediction(
         #model=all_model, environment=e_trade_gym
         model=trained_sac, environment=e_trade_gym

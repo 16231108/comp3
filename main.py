@@ -47,7 +47,7 @@ def main():
             finrl.autotrain.trade.train_one(sys.argv[2],sys.argv[3])
         elif(sys.argv[1]=='Backtest_Results'):
             import finrl.autotrain.backtest
-            
+            finrl.autotrain.backtest.train_one(sys.argv[2])
         # import finrl.autotrain.training
 
         # finrl.autotrain.training.train_one()
