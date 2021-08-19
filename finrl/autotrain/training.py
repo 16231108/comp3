@@ -139,10 +139,7 @@ def train_one():
         #model=all_model, environment=e_trade_gym
         model=trained_sac, environment=e_trade_gym
     )
-    df_account_value, df_actions = DRLAgent.DRL_prediction(
-        #model=all_model, environment=e_trade_gym
-        #model=trained_sac, environment=e_trade_gym
-    )
+    
     df_account_value.to_csv(
         "./" + config.RESULTS_DIR + "/df_account_value_" + now + ".csv"
     )
