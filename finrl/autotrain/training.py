@@ -123,7 +123,7 @@ def train_one():
         model=model_lxcA2C, tb_log_name="lxcA2C", total_timesteps=8000, lxcType=None, lxcName="lxc2"
     )'''
     #all_model.append(trained_lxcA2C)
-    
+    import dill as pickle
     with open('x.pkl','wb') as f:
         pickle.dump(trained_sac,f,2)
     with open('x.pkl','rb') as f:
