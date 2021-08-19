@@ -42,6 +42,12 @@ def main():
         elif(sys.argv[1]=='train_model'):
             import finrl.autotrain.train_model
             finrl.autotrain.train_model.train_one(sys.argv[2],sys.argv[3])
+        elif(sys.argv[1]=='trade'):
+            import finrl.autotrain.trade
+            finrl.autotrain.trade.train_one(sys.argv[2],sys.argv[3])
+        elif(sys.argv[1]=='Backtest_Results'):
+            import finrl.autotrain.backtest
+            
         # import finrl.autotrain.training
 
         # finrl.autotrain.training.train_one()

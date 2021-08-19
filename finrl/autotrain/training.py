@@ -72,6 +72,11 @@ def train_one():
 
     e_train_gym = StockTradingEnv(df=train, **env_kwargs)
     e_trade_gym = StockTradingEnv(df=trade, turbulence_threshold=250.0, **env_kwargs)
+    import dill as pickle
+    with open('y.pkl','wb') as f:
+        pickle.dump(e_trade_gym,f,2)
+    with open('y.pkl','rb') as f:
+        e_trade_gym=pickle.load(f)
     lxc_trade_gym =lxcStockTradingEnv(df=trade, turbulence_threshold=250.0, **env_kwargs)
     e_trade_gym2 = StockTradingEnv(df=trade, turbulence_threshold=250.0, **env_kwargs)
     env_train, _ = e_train_gym.get_sb_env()
